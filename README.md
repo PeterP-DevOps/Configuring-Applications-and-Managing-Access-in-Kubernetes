@@ -62,11 +62,13 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 ### Манифесты
 
- [service-web.yaml](task2/service-web.yaml) — Service типа ClusterIP.
+[service-web.yaml](task2/service-web.yaml) — Service типа ClusterIP.
+
 [ingress-tls.yaml](task2/ingress-tls.yaml) — Ingress с настройкой HTTPS.
- [secret-tls.example.yaml](task2/secret-tls.example.yaml) — шаблон TLS Secret.
+
+[secret-tls.example.yaml](task2/secret-tls.example.yaml) — шаблон TLS Secret.
 
 Проверка HTTPS-доступа: успешный ответ HTTP/2 200 и HTML-содержимое страницы
 
 
-[3](images/3.png)
+![3](images/3.png)
