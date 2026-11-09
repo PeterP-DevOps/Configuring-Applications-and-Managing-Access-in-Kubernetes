@@ -36,3 +36,37 @@
 
 ![Curl Result](images/2.png)
 
+## **Задание 2: Настройка HTTPS с Secrets**  
+### **Задача**  
+Развернуть приложение с доступом по HTTPS, используя самоподписанный сертификат.
+
+### **Шаги выполнения**  
+1. **Сгенерировать SSL-сертификат**
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tls.key -out tls.crt -subj "/CN=myapp.example.com"
+```
+2. **Создать Secret**
+3. **Настроить Ingress**
+4. **Проверить HTTPS-доступ**
+
+### **Что сдать на проверку**  
+- Манифесты:
+  - `secret-tls.yaml`
+  - `ingress-tls.yaml`
+- Скриншот вывода `curl -k`
+
+---
+
+### Решение
+
+### Манифесты
+
+ [service-web.yaml](task2/service-web.yaml) — Service типа ClusterIP.
+[ingress-tls.yaml](task2/ingress-tls.yaml) — Ingress с настройкой HTTPS.
+ [secret-tls.example.yaml](task2/secret-tls.example.yaml) — шаблон TLS Secret.
+
+Проверка HTTPS-доступа: успешный ответ HTTP/2 200 и HTML-содержимое страницы
+
+
+[3](images/3.png)
