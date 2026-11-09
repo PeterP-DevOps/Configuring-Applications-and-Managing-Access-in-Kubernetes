@@ -1,0 +1,46 @@
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: web-app
+  namespace: default
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: web-app
+
+  template:
+    metadata:
+      labels:
+        app: web-app
+
+    spec:
+      containers:
+        # Первый контейнер — веб-сервер nginx
+        - name: nginx
+          image: nginx:latest
+
+          ports:
+            - containerPort: 80
+
+          # Подключаем HTML-файл из ConfigMap
+          volumeMounts:
+            - name: web-content-volume
+              mountPath: /usr/share/nginx/html/index.html
+              subPath: index.html
+              readOnly: true
+
+        # Второй контейнер — инструменты диагностики
+        - name: multitool
+          image: wbitt/network-multitool:latest
+          command: ["sh", "-c", "sleep infinity"]
+
+      # Описываем Volume, который использует ConfigMap
+      volumes:
+        - name: web-content-volume
+          configMap:
+            name: web-content
