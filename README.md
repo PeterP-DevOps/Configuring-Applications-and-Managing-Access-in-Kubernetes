@@ -72,3 +72,103 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 
 ![3](images/3.png)
+
+## **Задание 3: Настройка RBAC**  
+### **Задача**  
+Создать пользователя с ограниченными правами (только просмотр логов и описания подов).
+
+### **Шаги выполнения**  
+1. **Включите RBAC в microk8s**
+```bash
+microk8s enable rbac
+```
+2. **Создать SSL-сертификат для пользователя**
+```bash
+openssl genrsa -out developer.key 2048
+openssl req -new -key developer.key -out developer.csr -subj "/CN={ИМЯ ПОЛЬЗОВАТЕЛЯ}"
+openssl x509 -req -in developer.csr -CA {CA серт вашего кластера} -CAkey {CA ключ вашего кластера} -CAcreateserial -out developer.crt -days 365
+```
+3. **Создать Role (только просмотр логов и описания подов) и RoleBinding**
+4. **Проверить доступ**
+
+### **Что сдать на проверку**  
+- Манифесты:
+  - `role-pod-reader.yaml`
+  - `rolebinding-developer.yaml`
+- Команды генерации сертификатов
+- Скриншот проверки прав (`kubectl get pods --as=developer`)
+
+### Решение
+
+Манифесты: 
+
+[role-pod-reader.yaml](task3/role-pod-reader.yaml)
+
+[rolebinding-developer.yaml](task3/rolebinding-developer.yaml)
+
+### Создание сертификата пользователя
+
+Создаём закрытый ключ:
+
+`openssl genrsa -out developer.key 2048`
+
+Создаём запрос на сертификат (CSR):
+
+``` 
+openssl req -new \
+  -key developer.key \
+  -out developer.csr \
+  -subj "/CN=developer"
+```
+
+Подписываем сертификат центром сертификации MicroK8s:
+
+```
+sudo openssl x509 -req \
+  -in developer.csr \
+  -CA /var/snap/microk8s/current/certs/ca.crt \
+  -CAkey /var/snap/microk8s/current/certs/ca.key \
+  -CAcreateserial \
+  -out developer.crt \
+  -days 365
+```
+
+### Настройка kubeconfig пользователя
+
+Создаём отдельную конфигурацию для пользователя developer, используя сертификат, закрытый ключ и CA-сертификат MicroK8s.
+
+```
+microk8s kubectl config set-cluster microk8s-cluster \
+  --server=https://10.0.2.15:16443 \
+  --certificate-authority=/var/snap/microk8s/current/certs/ca.crt \
+  --embed-certs=true \
+  --kubeconfig=developer.kubeconfig
+
+```
+```
+microk8s kubectl config set-credentials developer \
+  --client-certificate=developer.crt \
+  --client-key=developer.key \
+  --embed-certs=true \
+  --kubeconfig=developer.kubeconfig
+```
+```
+microk8s kubectl config set-credentials developer \
+  --client-certificate=developer.crt \
+  --client-key=developer.key \
+  --embed-certs=true \
+  --kubeconfig=developer.kubeconfig
+
+microk8s kubectl config set-context developer-context \
+  --cluster=microk8s-cluster \
+  --user=developer \
+  --namespace=default \
+  --kubeconfig=developer.kubeconfig
+```
+
+```
+microk8s kubectl config use-context developer-context \
+  --kubeconfig=developer.kubeconfig
+```
+
+![4](images/4.png)

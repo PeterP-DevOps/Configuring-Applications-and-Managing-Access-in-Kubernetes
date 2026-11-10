@@ -2,3 +2,8 @@
 **/tls.key
 **/tls.crt
 **/secret-tls.yaml
+**/developer.key
+**/developer.crt
+**/developer.csr
+**/developer.kubeconfig
+**/admin-config.yaml
